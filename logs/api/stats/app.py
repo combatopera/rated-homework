@@ -1,7 +1,14 @@
+from diapyr.util import singleton
 from flask import Flask, request
 
-application = Flask(__name__)
+class Application:
 
-@application.route('/customers/<customer_id>/stats')
-def stats(customer_id):
-    return request.args['from']
+    def stats(self, customer_id):
+        return request.args['from']
+
+@singleton
+def application():
+    app = Application()
+    flask = Flask(__name__)
+    flask.route('/customers/<customer_id>/stats')(app.stats)
+    return flask
