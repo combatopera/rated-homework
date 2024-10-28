@@ -1,1 +1,8 @@
+aridity==78
+diapyr==30
+importlib_metadata==8.5.0
+importlib_resources==6.4.5
+lagoon==47
 mod_wsgi==5.0.1
+pyparsing==2.4.7
+zipp==3.20.2

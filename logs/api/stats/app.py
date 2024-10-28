@@ -1,2 +1,1 @@
-def main():
-    print('woo')
+application = 'TODO'
