@@ -18,5 +18,5 @@ def application():
     cc.load('config.arid')
     app = Application(cc.r)
     flask = Flask(__name__)
-    flask.route('/customers/<customer_id>/stats')(app.stats)
+    flask.add_url_rule('/customers/<customer_id>/stats', view_func = app.stats)
     return flask
