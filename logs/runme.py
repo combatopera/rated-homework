@@ -50,7 +50,7 @@ from urllib.request import urlopen
 from uuid import uuid4
 import json, numpy as np
 
-configpath = anchordir / '.share' / 'config.arid'
+configpath = anchordir / 'etc' / 'config.arid'
 statepath = builddir / 'state.json'
 
 class Day:
@@ -124,12 +124,7 @@ class Main:
         if not configpath.exists():
             print('Create config:', configpath, file = sys.stderr)
             configpath.parent.mkdir(exist_ok = True)
-            configpath.write_text(f"""apache_port = 8000
-postgres
-    host = db
-    password = {uuid4()}
-    user = postgres
-""")
+            configpath.write_text(f". $./(root.arid)\npostgres password = {uuid4()}\n")
         cc = ConfigCtrl()
         cc.load(configpath)
         compose = docker.compose[partial](cwd = anchordir, env = dict(APACHE_PORT = str(cc.r.apache_port), POSTGRES_PASSWORD = cc.r.postgres.password, POSTGRES_USER = cc.r.postgres.user))
