@@ -12,7 +12,8 @@ class Application:
 
     def stats(self, customer_id):
         with connect(host = self.pg_host, password = self.pg_pass, user = self.pg_user) as conn, conn.cursor() as cur:
-            return request.args['from']
+            cur.execute("SELECT * FROM stats WHERE date >= %s", (request.args['from'],))
+            return cur.fetchall()
 
 @singleton
 def application():
