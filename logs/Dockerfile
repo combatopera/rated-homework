@@ -14,4 +14,4 @@ COPY api .
 RUN pip install . && rm -rv $PWD | tail -1
 COPY .share/config.arid .
 USER www-data
-ENTRYPOINT ["stats-api"]
+ENTRYPOINT ["stats-server"]
