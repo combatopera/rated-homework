@@ -9,7 +9,7 @@ class Application:
         self.pgpass = config.pgpass
 
     def stats(self, customer_id):
-        with connect(host = 'db', password = self.pgpass) as conn, conn.cursor() as cur:
+        with connect(host = 'db', password = self.pgpass, user = 'postgres') as conn, conn.cursor() as cur:
             return request.args['from']
 
 @singleton
