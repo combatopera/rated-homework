@@ -13,8 +13,8 @@ def _equipifnecessary():
     if equipped:
         sys.argv.pop(tokenindex)
         return
-    requirementspath = contextdir / 'requirements.txt'
-    venvpath = contextdir / '.build' / 'venv'
+    requirementspath = anchordir / 'requirements.txt'
+    venvpath = anchordir / '.build' / 'venv'
     journalpath = venvpath / 'journal'
     try:
         ok = journalpath.read_bytes() == requirementspath.read_bytes()
@@ -29,7 +29,7 @@ def _equipifnecessary():
     os.execv(args[0], args)
 
 from pathlib import Path
-contextdir = Path(__file__).parent
+anchordir = Path(__file__).parent
 if '__main__' == __name__:
     _equipifnecessary()
 from argparse import ArgumentParser
@@ -44,7 +44,7 @@ import json, sys
 class Main:
 
     def freeze():
-        apidir = contextdir / 'api'
+        apidir = anchordir / 'api'
         with iidfile() as iid:
             docker.build.__target.freeze[print](*iid.args, apidir)
             (apidir / 'requirements.txt').write_text(docker.run.__rm(iid.read()))
@@ -54,13 +54,13 @@ class Main:
         parser.add_argument('id')
         parser.add_argument('from')
         args = parser.parse_args()
-        info, = docker.inspect[json](docker.compose.ps._q.api[NOEOL](cwd = contextdir))
+        info, = docker.inspect[json](docker.compose.ps._q.api[NOEOL](cwd = anchordir))
         portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
         with urlopen(f"http://localhost:{portstr}/customers/{quote(args.id, '')}/stats?from={quote_plus(getattr(args, 'from'))}") as f:
             copyfileobj(f, sys.stdout.buffer)
 
     def update():
-        docker.compose.up.__build._d[print](cwd = contextdir)
+        docker.compose.up.__build._d[print](cwd = anchordir)
 
 def main():
     getattr(Main, sys.argv.pop(1))() # TODO LATER: Use argparse.
