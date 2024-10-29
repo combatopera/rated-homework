@@ -33,7 +33,12 @@ contextdir = Path(__file__).parent
 if '__main__' == __name__:
     _equipifnecessary()
 from lagoon import docker
+from lagoon.program import NOEOL
 import sys
+
+def freeze():
+    apidir = contextdir / 'api'
+    (apidir / 'requirements.txt').write_text(docker.run.__rm(docker.build._q.__target.freeze[NOEOL](apidir))) # TODO: Show logging.
 
 def update():
     docker.compose.up.__build._d[print](cwd = contextdir)
