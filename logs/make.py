@@ -50,7 +50,7 @@ class Main:
     def __init__(self, config):
         self.docker_compose = docker.compose[partial](cwd = anchordir, env = dict(APACHE_PORT = str(config.apache_port), POSTGRES_PASSWORD = config.postgres.password, POSTGRES_USER = config.postgres.user))
 
-    def check(self):
+    def test(self):
         pyflakes[print](*(p for p in anchordir.glob('**/*.py') if not p.is_relative_to(builddir)))
         invokeall([docker.build.__target.test[print, partial]('--build-arg', f"service={service}", anchordir) for service in ['api', 'console']])
 
@@ -81,6 +81,7 @@ class Main:
             self.docker_compose.exec._T.console.dbload[print](stdin = f)
 
     def update(self):
+        self.test()
         self.docker_compose.up.__build._d[print]()
         info, = docker.inspect[json](self.docker_compose.ps._q.api[NOEOL]())
         portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
