@@ -42,6 +42,7 @@ from aridity.config import ConfigCtrl
 from dkrcache.util import iidfile
 from lagoon import docker, pyflakes
 from lagoon.program import NOEOL, partial
+from psycopg import connect
 from shutil import copyfileobj
 from urllib.parse import quote, quote_plus
 from urllib.request import urlopen
@@ -66,11 +67,24 @@ class Main:
         parser.add_argument('id')
         parser.add_argument('from')
         args = parser.parse_args()
-        port = json.loads(statepath.read_bytes())['port']
+        port = json.loads(statepath.read_bytes())['port']['api']
         with urlopen(f"http://localhost:{port}/customers/{quote(args.id, '')}/stats?from={quote_plus(getattr(args, 'from'))}") as f:
             copyfileobj(f, sys.stdout.buffer)
 
+    def load():
+        parser = ArgumentParser()
+        parser.add_argument('logpath')
+        args = parser.parse_args()
+        cc = ConfigCtrl()
+        cc.load(configpath)
+        with connect(host = 'localhost', password = cc.r.postgres.password, port = json.loads(statepath.read_bytes())['port']['db'], user = cc.r.postgres.user) as conn, conn.cursor() as cur:
+            pass
+
     def update():
+        def serviceport(service):
+            info, = docker.inspect[json](compose.ps._q[NOEOL](service))
+            portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
+            return int(portstr)
         if not configpath.exists():
             print('Create config:', configpath, file = sys.stderr)
             configpath.parent.mkdir(exist_ok = True)
@@ -84,9 +98,7 @@ postgres
         cc.load(configpath)
         compose = docker.compose[partial](cwd = anchordir, env = dict(APACHE_PORT = str(cc.r.apache_port), POSTGRES_PASSWORD = cc.r.postgres.password, POSTGRES_USER = cc.r.postgres.user))
         compose.up.__build._d[print]()
-        info, = docker.inspect[json](compose.ps._q.api[NOEOL]())
-        portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
-        statepath.write_text(json.dumps(dict(port = int(portstr))))
+        statepath.write_text(json.dumps(dict(port = {s: serviceport(s) for s in ['api', 'db']})))
 
 def main():
     getattr(Main, sys.argv.pop(1))() # TODO LATER: Use argparse.

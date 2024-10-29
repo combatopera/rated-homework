@@ -9,3 +9,6 @@ services:
             POSTGRES_PASSWORD:
             POSTGRES_USER:
         image: postgres:17.0
+        ports:
+          - published: 0
+            target: 5432
