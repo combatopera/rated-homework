@@ -2,8 +2,9 @@ services:
     api:
         build: .
         ports:
-            - '0:8000'
+            - published: 0
+              target: $APACHE_PORT
     db:
-        image: postgres:17.0
         environment:
             POSTGRES_PASSWORD:
+        image: postgres:17.0

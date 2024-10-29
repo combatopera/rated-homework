@@ -67,10 +67,10 @@ class Main:
         if not configpath.exists():
             print('Create config:', configpath, file = sys.stderr)
             configpath.parent.mkdir(exist_ok = True)
-            configpath.write_text(f"pgpass = {uuid4()}\n")
+            configpath.write_text(f"apache_port = 8000\npgpass = {uuid4()}\n")
         cc = ConfigCtrl()
         cc.load(configpath)
-        compose = docker.compose[partial](cwd = anchordir, env = dict(POSTGRES_PASSWORD = cc.r.pgpass))
+        compose = docker.compose[partial](cwd = anchordir, env = dict(APACHE_PORT = str(cc.r.apache_port), POSTGRES_PASSWORD = cc.r.pgpass))
         compose.up.__build._d[print]()
         info, = docker.inspect[json](compose.ps._q.api[NOEOL]())
         portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
