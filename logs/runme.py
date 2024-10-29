@@ -39,39 +39,20 @@ if '__main__' == __name__:
 
 from argparse import ArgumentParser
 from aridity.config import ConfigCtrl
-from collections import defaultdict
 from dkrcache.util import iidfile
 from lagoon import docker, pyflakes
 from lagoon.program import NOEOL, partial
-from psycopg import connect
 from shutil import copyfileobj
 from urllib.parse import quote, quote_plus
 from urllib.request import urlopen
 from uuid import uuid4
-import json, numpy as np
+import json
 
 configpath = anchordir / 'etc' / 'config.arid'
 statepath = builddir / 'state.json'
 
-class Day:
-
-    classification = {2: 'successful', 4: 'failed', 5: 'failed'}
-    successful = 0
-    failed = 0
-
-    def __init__(self):
-        self.durations = []
-
-    def put(self, status_code, duration):
-        k = self.classification[status_code // 100]
-        setattr(self, k, getattr(self, k) + 1)
-        self.durations.append(duration) # XXX: Exclude any status?
-
-    def latency_mean(self):
-        return np.mean(self.durations)
-
-    def latency_percentiles(self, *percentiles):
-        return np.percentile(self.durations, percentiles)
+def _compose(config):
+    return docker.compose[partial](cwd = anchordir, env = dict(APACHE_PORT = str(config.apache_port), POSTGRES_PASSWORD = config.postgres.password, POSTGRES_USER = config.postgres.user))
 
 class Main:
 
@@ -105,19 +86,8 @@ class Main:
         args = parser.parse_args()
         cc = ConfigCtrl()
         cc.load(configpath)
-        # XXX: Use autocommit?
-        with connect(host = 'localhost', password = cc.r.postgres.password, port = json.loads(statepath.read_bytes())['port']['db'], user = cc.r.postgres.user) as conn, conn.cursor() as cur:
-            cur.execute('DROP INDEX IF EXISTS customer_date')
-            cur.execute('DROP TABLE IF EXISTS stats')
-            cur.execute('CREATE TABLE stats (customer_id text NOT NULL, date date NOT NULL, successful integer NOT NULL, failed integer NOT NULL, latency_mean real NOT NULL, latency_median real NOT NULL, latency_p99 real NOT NULL)')
-            cur.execute('CREATE UNIQUE INDEX customer_date ON stats (customer_id, date)') # XXX: Create after load?
-            days = defaultdict(Day)
-            with args.logpath.open() as f:
-                for line in f:
-                    date, time, customer_id, request_path, status_code, duration = line.split()
-                    days[customer_id, date].put(int(status_code), float(duration))
-            for (customer_id, date), day in days.items():
-                cur.execute('INSERT INTO stats VALUES (%s, %s, %s, %s, %s, %s, %s)', (customer_id, date, day.successful, day.failed, day.latency_mean(), *day.latency_percentiles(50, 99)))
+        with args.logpath.open() as f:
+            _compose(cc.r).exec._T.console.dbload[print](stdin = f)
 
     def update():
         def serviceport(service):
@@ -130,9 +100,9 @@ class Main:
             configpath.write_text(f". $./(root.arid)\npostgres password = {uuid4()}\n")
         cc = ConfigCtrl()
         cc.load(configpath)
-        compose = docker.compose[partial](cwd = anchordir, env = dict(APACHE_PORT = str(cc.r.apache_port), POSTGRES_PASSWORD = cc.r.postgres.password, POSTGRES_USER = cc.r.postgres.user))
+        compose = _compose(cc.r)
         compose.up.__build._d[print]()
-        statepath.write_text(json.dumps(dict(port = {s: serviceport(s) for s in ['api', 'db']})))
+        statepath.write_text(json.dumps(dict(port = {s: serviceport(s) for s in ['api']})))
 
 def main():
     getattr(Main, sys.argv.pop(1))() # TODO LATER: Use argparse.
