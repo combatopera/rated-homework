@@ -51,20 +51,18 @@ import json
 configpath = anchordir / 'etc' / 'config.arid'
 statepath = builddir / 'state.json'
 
-def _compose(config):
-    return docker.compose[partial](cwd = anchordir, env = dict(APACHE_PORT = str(config.apache_port), POSTGRES_PASSWORD = config.postgres.password, POSTGRES_USER = config.postgres.user))
-
 class Main:
 
-    def check():
+    def __init__(self, config):
+        self.docker_compose = docker.compose[partial](cwd = anchordir, env = dict(APACHE_PORT = str(config.apache_port), POSTGRES_PASSWORD = config.postgres.password, POSTGRES_USER = config.postgres.user))
+
+    def check(self):
         pyflakes[exec](*(p for p in anchordir.glob('**/*.py') if not p.is_relative_to(builddir)))
 
-    def compose():
-        cc = ConfigCtrl()
-        cc.load(configpath)
-        _compose(cc.r)[exec](*sys.argv[1:])
+    def compose(self):
+        self.docker_compose[exec](*sys.argv[1:])
 
-    def freeze():
+    def freeze(self):
         parser = ArgumentParser()
         parser.add_argument('service')
         service = parser.parse_args().service
@@ -72,7 +70,7 @@ class Main:
             docker.build.__target.freeze[print]('--build-arg', f"service={service}", *iid.args, anchordir)
             (anchordir / service / 'requirements.txt').write_text(docker.run.__rm(iid.read()))
 
-    def get():
+    def get(self):
         parser = ArgumentParser()
         parser.add_argument('--raw', action = 'store_true')
         parser.add_argument('id')
@@ -85,32 +83,29 @@ class Main:
             else:
                 print(json.dumps(json.load(f), indent = 4))
 
-    def load():
+    def load(self):
         parser = ArgumentParser()
         parser.add_argument('logpath', type = Path)
         args = parser.parse_args()
-        cc = ConfigCtrl()
-        cc.load(configpath)
         with args.logpath.open() as f:
-            _compose(cc.r).exec._T.console.dbload[print](stdin = f)
+            self.docker_compose.exec._T.console.dbload[print](stdin = f)
 
-    def update():
+    def update(self):
         def serviceport(service):
-            info, = docker.inspect[json](compose.ps._q[NOEOL](service))
+            info, = docker.inspect[json](self.docker_compose.ps._q[NOEOL](service))
             portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
             return int(portstr)
-        if not configpath.exists():
-            print('Create config:', configpath, file = sys.stderr)
-            configpath.parent.mkdir(exist_ok = True)
-            configpath.write_text(f". $./(root.arid)\npostgres password = {uuid4()}\n")
-        cc = ConfigCtrl()
-        cc.load(configpath)
-        compose = _compose(cc.r)
-        compose.up.__build._d[print]()
+        self.docker_compose.up.__build._d[print]()
         statepath.write_text(json.dumps(dict(port = {s: serviceport(s) for s in ['api']})))
 
 def main():
-    getattr(Main, sys.argv.pop(1))() # TODO LATER: Use argparse.
+    if not configpath.exists():
+        print('Create config:', configpath, file = sys.stderr)
+        configpath.parent.mkdir(exist_ok = True)
+        configpath.write_text(f". $./(root.arid)\npostgres password = {uuid4()}\n")
+    cc = ConfigCtrl()
+    cc.load(configpath)
+    getattr(Main(cc.r), sys.argv.pop(1))() # TODO LATER: Use argparse.
 
 if '__main__' == __name__:
     main()
