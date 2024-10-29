@@ -2,8 +2,8 @@ services:
     api:
         build: .
         ports:
-            - published: 0
-              target: $APACHE_PORT
+          - published: 0
+            target: $APACHE_PORT
     db:
         environment:
             POSTGRES_PASSWORD:
