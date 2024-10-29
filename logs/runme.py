@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
+from pathlib import Path
+import sys
+
 def _equipifnecessary():
     from shutil import copy2
     from subprocess import check_call
-    import os, sys
+    import os
     token = '--venv'
     tokenindex = 1
     try:
@@ -16,6 +19,7 @@ def _equipifnecessary():
     requirementspath = anchordir / 'requirements.txt'
     venvpath = builddir / 'venv'
     journalpath = venvpath / 'journal'
+    bindir = venvpath / 'bin'
     try:
         ok = journalpath.read_bytes() == requirementspath.read_bytes()
     except FileNotFoundError:
@@ -23,31 +27,34 @@ def _equipifnecessary():
     if not ok:
         print('Create/update venv:', venvpath, file = sys.stderr)
         check_call([sys.executable, '-m', 'venv', venvpath])
-        check_call([venvpath / 'bin' / 'pip', 'install', '-r', requirementspath])
+        check_call([bindir / 'pip', 'install', '-r', requirementspath])
         copy2(requirementspath, journalpath)
     args = [venvpath / 'bin' / 'python', __file__, token, *sys.argv[1:]]
-    os.execv(args[0], args)
+    os.execve(args[0], args, dict(os.environ, PATH = f"{bindir}{os.pathsep}{os.environ['PATH']}"))
 
-from pathlib import Path
 anchordir = Path(__file__).parent
 builddir = anchordir / '.build'
 if '__main__' == __name__:
     _equipifnecessary()
+
 from argparse import ArgumentParser
 from aridity.config import ConfigCtrl
 from dkrcache.util import iidfile
-from lagoon import docker
+from lagoon import docker, pyflakes
 from lagoon.program import NOEOL, partial
 from shutil import copyfileobj
 from urllib.parse import quote, quote_plus
 from urllib.request import urlopen
 from uuid import uuid4
-import json, sys
+import json
 
 configpath = anchordir / '.share' / 'config.arid'
 statepath = builddir / 'state.json'
 
 class Main:
+
+    def check():
+        pyflakes[exec](*(p for p in anchordir.glob('**/*.py') if not p.is_relative_to(builddir)))
 
     def freeze():
         with iidfile() as iid:
