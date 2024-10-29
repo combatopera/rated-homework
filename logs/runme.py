@@ -50,10 +50,9 @@ statepath = builddir / 'state.json'
 class Main:
 
     def freeze():
-        apidir = anchordir / 'api'
         with iidfile() as iid:
-            docker.build.__target.freeze[print](*iid.args, apidir)
-            (apidir / 'requirements.txt').write_text(docker.run.__rm(iid.read()))
+            docker.build.__target.freeze[print](*iid.args, anchordir)
+            (anchordir / 'api' / 'requirements.txt').write_text(docker.run.__rm(iid.read()))
 
     def get():
         parser = ArgumentParser()
