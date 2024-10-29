@@ -1,6 +1,6 @@
 FROM python:3.13.0 AS python
 RUN apt-get update && apt-get install -y apache2 apache2-dev
-WORKDIR /src
+WORKDIR /stats-api
 
 FROM python AS freeze
 COPY api/requirements.in .
