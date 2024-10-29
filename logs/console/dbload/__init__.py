@@ -17,6 +17,9 @@ class Day:
         setattr(self, k, getattr(self, k) + 1)
         self.durations.append(duration) # XXX: Exclude any status?
 
+    def uptime(self):
+        return -1
+
     def latency_mean(self):
         return np.mean(self.durations)
 
@@ -30,14 +33,14 @@ def main():
     with connect(host = cc.r.postgres.host, password = cc.r.postgres.password, user = cc.r.postgres.user) as conn, conn.cursor() as cur:
         cur.execute('DROP INDEX IF EXISTS customer_date')
         cur.execute('DROP TABLE IF EXISTS stats')
-        cur.execute('CREATE TABLE stats (customer_id text NOT NULL, date date NOT NULL, successful integer NOT NULL, failed integer NOT NULL, latency_mean real NOT NULL, latency_median real NOT NULL, latency_p99 real NOT NULL)')
+        cur.execute('CREATE TABLE stats (customer_id text NOT NULL, date date NOT NULL, successful integer NOT NULL, failed integer NOT NULL, uptime real NOT NULL, latency_mean real NOT NULL, latency_median real NOT NULL, latency_p99 real NOT NULL)')
         cur.execute('CREATE UNIQUE INDEX customer_date ON stats (customer_id, date)') # XXX: Create after load?
         days = defaultdict(Day)
         for line in sys.stdin:
             date, time, customer_id, request_path, status_code, duration = line.split()
             days[customer_id, date].put(int(status_code), float(duration))
         for (customer_id, date), day in days.items():
-            cur.execute('INSERT INTO stats VALUES (%s, %s, %s, %s, %s, %s, %s)', (customer_id, date, day.successful, day.failed, day.latency_mean(), *day.latency_percentiles(50, 99)))
+            cur.execute('INSERT INTO stats VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (customer_id, date, day.successful, day.failed, day.uptime(), day.latency_mean(), *day.latency_percentiles(50, 99)))
 
 if '__main__' == __name__:
     main()

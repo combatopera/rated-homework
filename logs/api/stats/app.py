@@ -6,7 +6,7 @@ import json
 
 class Application:
 
-    cols = 'successful', 'failed', 'latency_mean', 'latency_median', 'latency_p99'
+    cols = 'successful', 'failed', 'uptime', 'latency_mean', 'latency_median', 'latency_p99'
 
     def __init__(self, config, flask):
         self.pg_host = config.postgres.host
