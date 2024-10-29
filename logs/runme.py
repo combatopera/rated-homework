@@ -63,7 +63,7 @@ class Main:
         docker.compose.up.__build._d[print](cwd = contextdir)
 
 def main():
-    getattr(Main, sys.argv.pop(1))()
+    getattr(Main, sys.argv.pop(1))() # TODO LATER: Use argparse.
 
 if '__main__' == __name__:
     main()
