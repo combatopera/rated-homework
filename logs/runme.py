@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
-import sys
+import logging, sys
 
 def _equipifnecessary():
     from shutil import copy2
     from subprocess import check_call
     import os
+    logging.basicConfig(format = "%(asctime)s %(levelname)s %(message)s", level = logging.DEBUG)
     token = '--venv'
     tokenindex = 1
     try:
@@ -25,13 +26,14 @@ def _equipifnecessary():
     except FileNotFoundError:
         ok = False
     if not ok:
-        print('Create/update venv:', venvpath, file = sys.stderr)
+        log.info("Create/update venv: %s", venvpath)
         check_call([sys.executable, '-m', 'venv', venvpath])
         check_call([bindir / 'pip', 'install', '-r', requirementspath])
         copy2(requirementspath, journalpath)
     args = [venvpath / 'bin' / 'python', __file__, token, *sys.argv[1:]]
     os.execve(args[0], args, dict(os.environ, PATH = f"{bindir}{os.pathsep}{os.environ['PATH']}"))
 
+log = logging.getLogger(__name__)
 anchordir = Path(__file__).parent
 builddir = anchordir / '.build'
 if '__main__' == __name__:
@@ -100,7 +102,7 @@ class Main:
 
 def main():
     if not configpath.exists():
-        print('Create config:', configpath, file = sys.stderr)
+        log.info("Create config: %s", configpath)
         configpath.write_text(f". $./(root.arid)\npostgres password = {uuid4()}\n")
     cc = ConfigCtrl()
     cc.load(configpath)
