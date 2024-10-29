@@ -43,7 +43,6 @@ from dkrcache.util import iidfile
 from lagoon import docker, pyflakes
 from lagoon.program import NOEOL, partial
 from psycopg import connect
-from shutil import copyfileobj
 from urllib.parse import quote, quote_plus
 from urllib.request import urlopen
 from uuid import uuid4
@@ -69,7 +68,7 @@ class Main:
         args = parser.parse_args()
         port = json.loads(statepath.read_bytes())['port']['api']
         with urlopen(f"http://localhost:{port}/customers/{quote(args.id, '')}/stats?from={quote_plus(getattr(args, 'from'))}") as f:
-            copyfileobj(f, sys.stdout.buffer)
+            print(json.dumps(json.load(f), indent = 4))
 
     def load():
         parser = ArgumentParser()
