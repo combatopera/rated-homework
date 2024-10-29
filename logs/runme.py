@@ -32,13 +32,27 @@ from pathlib import Path
 contextdir = Path(__file__).parent
 if '__main__' == __name__:
     _equipifnecessary()
+from argparse import ArgumentParser
 from lagoon import docker
 from lagoon.program import NOEOL
-import sys
+from shutil import copyfileobj
+from urllib.parse import quote, quote_plus
+from urllib.request import urlopen
+import json, sys
 
 def freeze():
     apidir = contextdir / 'api'
     (apidir / 'requirements.txt').write_text(docker.run.__rm(docker.build._q.__target.freeze[NOEOL](apidir))) # TODO: Show logging.
+
+def get():
+    parser = ArgumentParser()
+    parser.add_argument('id')
+    parser.add_argument('from')
+    args = parser.parse_args()
+    info, = docker.inspect[json](docker.compose.ps._q.api[NOEOL](cwd = contextdir))
+    portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
+    with urlopen(f"http://localhost:{portstr}/customers/{quote(args.id, '')}/stats?from={quote_plus(getattr(args, 'from'))}") as f:
+        copyfileobj(f, sys.stdout.buffer)
 
 def update():
     docker.compose.up.__build._d[print](cwd = contextdir)
