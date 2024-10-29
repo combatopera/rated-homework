@@ -101,7 +101,6 @@ class Main:
 def main():
     if not configpath.exists():
         print('Create config:', configpath, file = sys.stderr)
-        configpath.parent.mkdir(exist_ok = True)
         configpath.write_text(f". $./(root.arid)\npostgres password = {uuid4()}\n")
     cc = ConfigCtrl()
     cc.load(configpath)
