@@ -1,3 +1,4 @@
+from .algo import UptimeEstimator
 from aridity.config import ConfigCtrl
 from collections import defaultdict
 from datetime import time
@@ -12,14 +13,17 @@ class Day:
 
     def __init__(self):
         self.durations = []
+        self.estimator = UptimeEstimator()
 
     def put(self, time, status_code, duration):
-        k = self.classification[status_code // 100]
+        status_class = status_code // 100
+        k = self.classification[status_class]
         setattr(self, k, getattr(self, k) + 1)
+        self.estimator.add(time, 5 != status_class)
         self.durations.append(duration) # XXX: Exclude any status?
 
     def uptime(self):
-        return -1
+        return self.estimator.uptime()
 
     def latency_mean(self):
         return np.mean(self.durations)
