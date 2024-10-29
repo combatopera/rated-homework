@@ -42,7 +42,6 @@ from urllib.request import urlopen
 from uuid import uuid4
 import json
 
-configpath = anchordir / 'etc' / 'config.arid'
 statepath = builddir / 'state.json'
 
 class Main:
@@ -93,6 +92,7 @@ class Main:
         statepath.write_text(json.dumps(dict(port = {s: serviceport(s) for s in ['api']})))
 
 def main():
+    configpath = anchordir / 'etc' / 'config.arid'
     if not configpath.exists():
         log.info("Create config: %s", configpath)
         configpath.write_text(f". $./(root.arid)\npostgres password = {uuid4()}\n")
