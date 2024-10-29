@@ -15,7 +15,7 @@ class Application:
     def stats(self, customer_id):
         with connect(host = self.pg_host, password = self.pg_pass, user = self.pg_user) as conn, conn.cursor() as cur:
             cur.execute(f"SELECT date, {', '.join(self.cols)} FROM stats WHERE customer_id = %s AND date >= %s ORDER BY date", (customer_id, request.args['from']))
-            return {str(date): {name: v for name, v in zip(self.cols, row)} for date, *row in cur.fetchall()} # XXX: Preserve key order?
+            return {str(date): dict(zip(self.cols, row)) for date, *row in cur.fetchall()} # XXX: Preserve key order?
 
 @singleton
 def application():
