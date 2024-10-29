@@ -37,7 +37,7 @@ from argparse import ArgumentParser
 from aridity.config import ConfigCtrl
 from dkrcache.util import iidfile
 from lagoon import docker
-from lagoon.program import NOEOL
+from lagoon.program import NOEOL, partial
 from shutil import copyfileobj
 from urllib.parse import quote, quote_plus
 from urllib.request import urlopen
@@ -73,8 +73,9 @@ class Main:
             pgpass = str(uuid4())
             configpath.parent.mkdir(exist_ok = True)
             configpath.write_text(f"pgpass = {pgpass}\n")
-        docker.compose.up.__build._d[print](cwd = anchordir, env = dict(POSTGRES_PASSWORD = pgpass))
-        info, = docker.inspect[json](docker.compose.ps._q.api[NOEOL](cwd = anchordir))
+        compose = docker.compose[partial](cwd = anchordir, env = dict(POSTGRES_PASSWORD = pgpass))
+        compose.up.__build._d[print]()
+        info, = docker.inspect[json](compose.ps._q.api[NOEOL]())
         portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
         statepath.write_text(json.dumps(dict(port = int(portstr))))
 
