@@ -14,7 +14,7 @@ def _equipifnecessary():
         sys.argv.pop(tokenindex)
         return
     requirementspath = anchordir / 'requirements.txt'
-    venvpath = anchordir / '.build' / 'venv'
+    venvpath = builddir / 'venv'
     journalpath = venvpath / 'journal'
     try:
         ok = journalpath.read_bytes() == requirementspath.read_bytes()
@@ -30,6 +30,7 @@ def _equipifnecessary():
 
 from pathlib import Path
 anchordir = Path(__file__).parent
+builddir = anchordir / '.build'
 if '__main__' == __name__:
     _equipifnecessary()
 from argparse import ArgumentParser
@@ -54,13 +55,15 @@ class Main:
         parser.add_argument('id')
         parser.add_argument('from')
         args = parser.parse_args()
-        info, = docker.inspect[json](docker.compose.ps._q.api[NOEOL](cwd = anchordir))
-        portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
-        with urlopen(f"http://localhost:{portstr}/customers/{quote(args.id, '')}/stats?from={quote_plus(getattr(args, 'from'))}") as f:
+        port = json.loads((builddir / 'info.json').read_bytes())['port']
+        with urlopen(f"http://localhost:{port}/customers/{quote(args.id, '')}/stats?from={quote_plus(getattr(args, 'from'))}") as f:
             copyfileobj(f, sys.stdout.buffer)
 
     def update():
         docker.compose.up.__build._d[print](cwd = anchordir)
+        info, = docker.inspect[json](docker.compose.ps._q.api[NOEOL](cwd = anchordir))
+        portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
+        (builddir / 'info.json').write_text(json.dumps(dict(port = int(portstr))))
 
 def main():
     getattr(Main, sys.argv.pop(1))() # TODO LATER: Use argparse.
