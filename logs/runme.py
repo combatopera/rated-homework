@@ -59,6 +59,11 @@ class Main:
     def check():
         pyflakes[exec](*(p for p in anchordir.glob('**/*.py') if not p.is_relative_to(builddir)))
 
+    def compose():
+        cc = ConfigCtrl()
+        cc.load(configpath)
+        _compose(cc.r)[exec](*sys.argv[1:])
+
     def freeze():
         parser = ArgumentParser()
         parser.add_argument('service')
