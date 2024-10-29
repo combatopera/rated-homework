@@ -1,17 +1,27 @@
 FROM python:3.13.0 AS python
 RUN apt-get update && apt-get install -y apache2 apache2-dev
-WORKDIR /stats-api
+WORKDIR /service-setup
 
 FROM python AS freeze
-COPY api/requirements.in .
+ARG service
+COPY $service/requirements.in .
 RUN pip install -r requirements.in && pip freeze | tee requirements.txt # TODO: Use pip-tools.
 ENTRYPOINT ["cat", "requirements.txt"]
 
-FROM python
+FROM python AS api
 COPY api/requirements.txt .
 RUN pip install -r requirements.txt
 COPY api .
 RUN pip install . && rm -rv $PWD | tail -1
 COPY etc .
-USER www-data
 ENTRYPOINT ["stats-server"]
+USER www-data
+
+FROM python AS console
+COPY console/requirements.txt .
+RUN pip install -r requirements.txt
+COPY console .
+RUN pip install . && rm -rv $PWD | tail -1
+COPY etc .
+ENTRYPOINT ["python", "-c", "import time\nwhile True: time.sleep(1)"]
+STOPSIGNAL SIGINT

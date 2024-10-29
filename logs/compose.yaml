@@ -1,9 +1,15 @@
 services:
     api:
-        build: .
+        build:
+            context: .
+            target: api
         ports:
           - published: 0
             target: $APACHE_PORT
+    console:
+        build:
+            context: .
+            target: console
     db:
         environment:
             POSTGRES_PASSWORD:

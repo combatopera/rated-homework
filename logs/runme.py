@@ -79,9 +79,12 @@ class Main:
         pyflakes[exec](*(p for p in anchordir.glob('**/*.py') if not p.is_relative_to(builddir)))
 
     def freeze():
+        parser = ArgumentParser()
+        parser.add_argument('service')
+        service = parser.parse_args().service
         with iidfile() as iid:
-            docker.build.__target.freeze[print](*iid.args, anchordir)
-            (anchordir / 'api' / 'requirements.txt').write_text(docker.run.__rm(iid.read()))
+            docker.build.__target.freeze[print]('--build-arg', f"service={service}", *iid.args, anchordir)
+            (anchordir / service / 'requirements.txt').write_text(docker.run.__rm(iid.read()))
 
     def get():
         parser = ArgumentParser()
