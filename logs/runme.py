@@ -64,16 +64,13 @@ class Main:
             copyfileobj(f, sys.stdout.buffer)
 
     def update():
-        if configpath.exists():
-            cc = ConfigCtrl()
-            cc.load(configpath)
-            pgpass = cc.r.pgpass
-        else:
+        if not configpath.exists():
             print('Create config:', configpath, file = sys.stderr)
-            pgpass = str(uuid4())
             configpath.parent.mkdir(exist_ok = True)
-            configpath.write_text(f"pgpass = {pgpass}\n")
-        compose = docker.compose[partial](cwd = anchordir, env = dict(POSTGRES_PASSWORD = pgpass))
+            configpath.write_text(f"pgpass = {uuid4()}\n")
+        cc = ConfigCtrl()
+        cc.load(configpath)
+        compose = docker.compose[partial](cwd = anchordir, env = dict(POSTGRES_PASSWORD = cc.r.pgpass))
         compose.up.__build._d[print]()
         info, = docker.inspect[json](compose.ps._q.api[NOEOL]())
         portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
