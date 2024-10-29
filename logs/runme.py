@@ -39,6 +39,7 @@ if '__main__' == __name__:
 
 from argparse import ArgumentParser
 from aridity.config import ConfigCtrl
+from collections import defaultdict
 from dkrcache.util import iidfile
 from lagoon import docker, pyflakes
 from lagoon.program import NOEOL, partial
@@ -46,10 +47,30 @@ from psycopg import connect
 from urllib.parse import quote, quote_plus
 from urllib.request import urlopen
 from uuid import uuid4
-import json
+import json, numpy as np
 
 configpath = anchordir / '.share' / 'config.arid'
 statepath = builddir / 'state.json'
+
+class Day:
+
+    classification = {2: 'successful', 4: 'failed', 5: 'failed'}
+    successful = 0
+    failed = 0
+
+    def __init__(self):
+        self.durations = []
+
+    def put(self, status_code, duration):
+        k = self.classification[status_code // 100]
+        setattr(self, k, getattr(self, k) + 1)
+        self.durations.append(duration) # XXX: Exclude any status?
+
+    def latency_mean(self):
+        return np.mean(self.durations)
+
+    def latency_percentiles(self, *percentiles):
+        return np.percentile(self.durations, percentiles)
 
 class Main:
 
@@ -79,6 +100,13 @@ class Main:
         with connect(host = 'localhost', password = cc.r.postgres.password, port = json.loads(statepath.read_bytes())['port']['db'], user = cc.r.postgres.user) as conn, conn.cursor() as cur:
             cur.execute('DROP TABLE IF EXISTS stats')
             cur.execute('CREATE TABLE stats (customer_id text NOT NULL, date date NOT NULL, successful integer NOT NULL, failed integer NOT NULL, latency_mean real NOT NULL, latency_median real NOT NULL, latency_p99 real NOT NULL)')
+            days = defaultdict(Day)
+            with args.logpath.open() as f:
+                for line in f:
+                    date, time, customer_id, request_path, status_code, duration = line.split()
+                    days[customer_id, date].put(int(status_code), float(duration))
+            for (customer_id, date), day in days.items():
+                cur.execute('INSERT INTO stats VALUES (%s, %s, %s, %s, %s, %s, %s)', (customer_id, date, day.successful, day.failed, day.latency_mean(), *day.latency_percentiles(50, 99)))
 
     def update():
         def serviceport(service):
