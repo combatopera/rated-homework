@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 def _equipifnecessary():
-    from pathlib import Path
     from shutil import copy2
     from subprocess import check_call
     import os, sys
@@ -14,7 +13,6 @@ def _equipifnecessary():
     if equipped:
         sys.argv.pop(tokenindex)
         return
-    contextdir = Path(__file__).parent
     requirementspath = contextdir / 'requirements.txt'
     venvpath = contextdir / '.build' / 'venv'
     journalpath = venvpath / 'journal'
@@ -30,13 +28,18 @@ def _equipifnecessary():
     args = [venvpath / 'bin' / 'python', __file__, token, *sys.argv[1:]]
     os.execv(args[0], args)
 
+from pathlib import Path
+contextdir = Path(__file__).parent
 if '__main__' == __name__:
     _equipifnecessary()
 from lagoon import docker
 import sys
 
+def update():
+    docker.compose.up.__build._d[print](cwd = contextdir)
+
 def main():
-    print(sys.executable, sys.argv)
+    globals()[sys.argv.pop(1)]()
 
 if '__main__' == __name__:
     main()
