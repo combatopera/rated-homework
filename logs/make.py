@@ -42,7 +42,7 @@ from urllib.request import urlopen
 from uuid import uuid4
 import json
 
-statepath = builddir / 'state.json'
+portpath = builddir / 'port'
 
 class Main:
 
@@ -69,8 +69,7 @@ class Main:
         parser.add_argument('id')
         parser.add_argument('from')
         args = parser.parse_args()
-        port = json.loads(statepath.read_bytes())['port']['api']
-        with urlopen(f"http://localhost:{port}/customers/{quote(args.id, '')}/stats?from={quote_plus(getattr(args, 'from'))}") as f:
+        with urlopen(f"http://localhost:{portpath.read_text().rstrip()}/customers/{quote(args.id, '')}/stats?from={quote_plus(getattr(args, 'from'))}") as f:
             if args.raw:
                 copyfileobj(f, sys.stdout.buffer)
             else:
@@ -84,12 +83,10 @@ class Main:
             self.docker_compose.exec._T.console.dbload[print](stdin = f)
 
     def update(self):
-        def serviceport(service):
-            info, = docker.inspect[json](self.docker_compose.ps._q[NOEOL](service))
-            portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
-            return int(portstr)
         self.docker_compose.up.__build._d[print]()
-        statepath.write_text(json.dumps(dict(port = {s: serviceport(s) for s in ['api']})))
+        info, = docker.inspect[json](self.docker_compose.ps._q.api[NOEOL]())
+        portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
+        portpath.write_text(f"{portstr}\n")
 
 def main():
     configpath = anchordir / 'etc' / 'config.arid'
