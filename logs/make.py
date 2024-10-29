@@ -70,10 +70,7 @@ class Main:
         parser.add_argument('from')
         args = parser.parse_args()
         with urlopen(f"http://localhost:{portpath.read_text().rstrip()}/customers/{quote(args.id, '')}/stats?from={quote_plus(getattr(args, 'from'))}") as f:
-            if args.raw:
-                copyfileobj(f, sys.stdout.buffer)
-            else:
-                print(json.dumps(json.load(f), indent = 4))
+            copyfileobj(f, sys.stdout.buffer) if args.raw else print(json.dumps(json.load(f), indent = 4))
 
     def load(self):
         parser = ArgumentParser()
