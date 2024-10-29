@@ -75,8 +75,7 @@ class Main:
     def load(self):
         parser = ArgumentParser()
         parser.add_argument('logpath', type = Path)
-        args = parser.parse_args()
-        with args.logpath.open() as f:
+        with parser.parse_args().logpath.open() as f:
             self.docker_compose.exec._T.console.dbload[print](stdin = f)
 
     def update(self):
