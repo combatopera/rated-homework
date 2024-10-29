@@ -73,12 +73,13 @@ class Main:
 
     def load():
         parser = ArgumentParser()
-        parser.add_argument('logpath')
+        parser.add_argument('logpath', type = Path)
         args = parser.parse_args()
         cc = ConfigCtrl()
         cc.load(configpath)
         with connect(host = 'localhost', password = cc.r.postgres.password, port = json.loads(statepath.read_bytes())['port']['db'], user = cc.r.postgres.user) as conn, conn.cursor() as cur:
-            pass
+            cur.execute('DROP TABLE IF EXISTS stats')
+            cur.execute('CREATE TABLE stats (customer_id text NOT NULL, date date NOT NULL, successful integer NOT NULL, failed integer NOT NULL, latency_mean real NOT NULL, latency_median real NOT NULL, latency_p99 real NOT NULL)')
 
     def update():
         def serviceport(service):
