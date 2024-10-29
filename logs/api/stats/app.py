@@ -12,7 +12,7 @@ class Application:
 
     def stats(self, customer_id):
         with connect(host = self.pg_host, password = self.pg_pass, user = self.pg_user) as conn, conn.cursor() as cur:
-            cur.execute("SELECT * FROM stats WHERE customer_id = %s AND date >= %s", (customer_id, request.args['from']))
+            cur.execute("SELECT * FROM stats WHERE customer_id = %s AND date >= %s ORDER BY date", (customer_id, request.args['from']))
             return cur.fetchall()
 
 @singleton
