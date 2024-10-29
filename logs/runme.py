@@ -40,25 +40,27 @@ from urllib.parse import quote, quote_plus
 from urllib.request import urlopen
 import json, sys
 
-def freeze():
-    apidir = contextdir / 'api'
-    (apidir / 'requirements.txt').write_text(docker.run.__rm(docker.build._q.__target.freeze[NOEOL](apidir))) # TODO: Show logging.
+class Main:
 
-def get():
-    parser = ArgumentParser()
-    parser.add_argument('id')
-    parser.add_argument('from')
-    args = parser.parse_args()
-    info, = docker.inspect[json](docker.compose.ps._q.api[NOEOL](cwd = contextdir))
-    portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
-    with urlopen(f"http://localhost:{portstr}/customers/{quote(args.id, '')}/stats?from={quote_plus(getattr(args, 'from'))}") as f:
-        copyfileobj(f, sys.stdout.buffer)
+    def freeze():
+        apidir = contextdir / 'api'
+        (apidir / 'requirements.txt').write_text(docker.run.__rm(docker.build._q.__target.freeze[NOEOL](apidir))) # TODO: Show logging.
 
-def update():
-    docker.compose.up.__build._d[print](cwd = contextdir)
+    def get():
+        parser = ArgumentParser()
+        parser.add_argument('id')
+        parser.add_argument('from')
+        args = parser.parse_args()
+        info, = docker.inspect[json](docker.compose.ps._q.api[NOEOL](cwd = contextdir))
+        portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
+        with urlopen(f"http://localhost:{portstr}/customers/{quote(args.id, '')}/stats?from={quote_plus(getattr(args, 'from'))}") as f:
+            copyfileobj(f, sys.stdout.buffer)
+
+    def update():
+        docker.compose.up.__build._d[print](cwd = contextdir)
 
 def main():
-    globals()[sys.argv.pop(1)]()
+    getattr(Main, sys.argv.pop(1))()
 
 if '__main__' == __name__:
     main()
