@@ -3,3 +3,7 @@ services:
         build: ./api
         ports:
             - '0:8000'
+    db:
+        image: postgres:17.0
+        environment:
+            POSTGRES_PASSWORD:

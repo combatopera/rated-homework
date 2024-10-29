@@ -34,14 +34,17 @@ builddir = anchordir / '.build'
 if '__main__' == __name__:
     _equipifnecessary()
 from argparse import ArgumentParser
+from aridity.config import ConfigCtrl
 from dkrcache.util import iidfile
 from lagoon import docker
 from lagoon.program import NOEOL
 from shutil import copyfileobj
 from urllib.parse import quote, quote_plus
 from urllib.request import urlopen
+from uuid import uuid4
 import json, sys
 
+configpath = builddir / 'config.arid'
 statepath = builddir / 'state.json'
 
 class Main:
@@ -62,7 +65,14 @@ class Main:
             copyfileobj(f, sys.stdout.buffer)
 
     def update():
-        docker.compose.up.__build._d[print](cwd = anchordir)
+        if configpath.exists():
+            cc = ConfigCtrl()
+            cc.load(configpath)
+            pgpass = cc.r.pgpass
+        else:
+            pgpass = str(uuid4())
+            configpath.write_text(f"pgpass = {pgpass}\n")
+        docker.compose.up.__build._d[print](cwd = anchordir, env = dict(POSTGRES_PASSWORD = pgpass))
         info, = docker.inspect[json](docker.compose.ps._q.api[NOEOL](cwd = anchordir))
         portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
         statepath.write_text(json.dumps(dict(port = int(portstr))))
