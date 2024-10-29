@@ -1,4 +1,5 @@
 aridity
 lagoon
+numpy
 psycopg[binary]
 pyflakes
