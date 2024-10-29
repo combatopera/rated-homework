@@ -17,16 +17,12 @@ def _activateifnecessary():
     venvdir = builddir / 'venv'
     journalpath = venvdir / 'journal'
     bindir = venvdir / 'bin'
-    try:
-        ok = journalpath.read_bytes() == requirementspath.read_bytes()
-    except FileNotFoundError:
-        ok = False
-    if not ok:
+    if not (journalpath.exists() and journalpath.read_bytes() == requirementspath.read_bytes()):
         log.info("Create/update venv: %s", venvdir)
         check_call([sys.executable, '-m', 'venv', venvdir])
         check_call([bindir / 'pip', 'install', '-r', requirementspath])
         copy2(requirementspath, journalpath)
-    args = [venvdir / 'bin' / 'python', __file__, indicator, *sys.argv[1:]]
+    args = bindir / 'python', __file__, indicator, *sys.argv[1:]
     os.execve(args[0], args, dict(os.environ, PATH = f"{bindir}{os.pathsep}{os.environ['PATH']}"))
 
 log = logging.getLogger(__name__)
