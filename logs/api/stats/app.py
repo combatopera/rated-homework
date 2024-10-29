@@ -5,6 +5,15 @@ from psycopg import connect
 
 class Application:
 
+    cols = dict(
+        date = str,
+        successful = int,
+        failed = int,
+        latency_mean = float,
+        latency_median = float,
+        latency_p99 = float,
+    )
+
     def __init__(self, config):
         self.pg_host = config.postgres.host
         self.pg_pass = config.postgres.password
@@ -12,8 +21,8 @@ class Application:
 
     def stats(self, customer_id):
         with connect(host = self.pg_host, password = self.pg_pass, user = self.pg_user) as conn, conn.cursor() as cur:
-            cur.execute("SELECT * FROM stats WHERE customer_id = %s AND date >= %s ORDER BY date", (customer_id, request.args['from']))
-            return cur.fetchall()
+            cur.execute(f"SELECT {', '.join(self.cols)} FROM stats WHERE customer_id = %s AND date >= %s ORDER BY date", (customer_id, request.args['from']))
+            return [{name: t(v) for (name, t), v in zip(self.cols.items(), row)} for row in cur.fetchall()] # XXX: Preserve key order?
 
 @singleton
 def application():
