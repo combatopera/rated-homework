@@ -6,10 +6,12 @@ from psycopg import connect
 class Application:
 
     def __init__(self, config):
-        self.pgpass = config.pgpass
+        self.pg_host = config.postgres.host
+        self.pg_pass = config.postgres.password
+        self.pg_user = config.postgres.user
 
     def stats(self, customer_id):
-        with connect(host = 'db', password = self.pgpass, user = 'postgres') as conn, conn.cursor() as cur:
+        with connect(host = self.pg_host, password = self.pg_pass, user = self.pg_user) as conn, conn.cursor() as cur:
             return request.args['from']
 
 @singleton

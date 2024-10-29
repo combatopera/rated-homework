@@ -7,4 +7,5 @@ services:
     db:
         environment:
             POSTGRES_PASSWORD:
+            POSTGRES_USER:
         image: postgres:17.0
