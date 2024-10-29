@@ -44,7 +44,7 @@ from urllib.request import urlopen
 from uuid import uuid4
 import json, sys
 
-configpath = builddir / 'config.arid'
+configpath = anchordir / '.share' / 'config.arid'
 statepath = builddir / 'state.json'
 
 class Main:
@@ -69,7 +69,9 @@ class Main:
             cc.load(configpath)
             pgpass = cc.r.pgpass
         else:
+            print('Create config:', configpath, file = sys.stderr)
             pgpass = str(uuid4())
+            configpath.parent.mkdir(exist_ok = True)
             configpath.write_text(f"pgpass = {pgpass}\n")
         docker.compose.up.__build._d[print](cwd = anchordir, env = dict(POSTGRES_PASSWORD = pgpass))
         info, = docker.inspect[json](docker.compose.ps._q.api[NOEOL](cwd = anchordir))

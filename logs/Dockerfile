@@ -12,6 +12,6 @@ COPY api/requirements.txt .
 RUN pip install -r requirements.txt
 COPY api .
 RUN pip install . && rm -rv $PWD | tail -1
-COPY .build/config.arid .
+COPY .share/config.arid .
 USER www-data
 ENTRYPOINT ["stats-api"]
