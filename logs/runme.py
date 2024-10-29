@@ -33,6 +33,7 @@ contextdir = Path(__file__).parent
 if '__main__' == __name__:
     _equipifnecessary()
 from argparse import ArgumentParser
+from dkrcache.util import iidfile
 from lagoon import docker
 from lagoon.program import NOEOL
 from shutil import copyfileobj
@@ -44,7 +45,9 @@ class Main:
 
     def freeze():
         apidir = contextdir / 'api'
-        (apidir / 'requirements.txt').write_text(docker.run.__rm(docker.build._q.__target.freeze[NOEOL](apidir))) # TODO: Show logging.
+        with iidfile() as iid:
+            docker.build.__target.freeze[print](*iid.args, apidir)
+            (apidir / 'requirements.txt').write_text(docker.run.__rm(iid.read()))
 
     def get():
         parser = ArgumentParser()
