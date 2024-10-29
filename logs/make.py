@@ -3,19 +3,19 @@
 from pathlib import Path
 import logging, sys
 
-def _equipifnecessary():
+def _activateifnecessary():
     from shutil import copy2
     from subprocess import check_call
     import os
     logging.basicConfig(format = "%(asctime)s %(levelname)s %(message)s", level = logging.DEBUG)
-    token = '--venv'
-    tokenindex = 1
+    indicator = '--venv'
+    indicatorindex = 1
     try:
-        equipped = token == sys.argv[tokenindex]
+        activated = indicator == sys.argv[indicatorindex]
     except IndexError:
-        equipped = False
-    if equipped:
-        sys.argv.pop(tokenindex)
+        activated = False
+    if activated:
+        sys.argv.pop(indicatorindex)
         return
     requirementspath = anchordir / 'requirements.txt'
     venvpath = builddir / 'venv'
@@ -30,14 +30,14 @@ def _equipifnecessary():
         check_call([sys.executable, '-m', 'venv', venvpath])
         check_call([bindir / 'pip', 'install', '-r', requirementspath])
         copy2(requirementspath, journalpath)
-    args = [venvpath / 'bin' / 'python', __file__, token, *sys.argv[1:]]
+    args = [venvpath / 'bin' / 'python', __file__, indicator, *sys.argv[1:]]
     os.execve(args[0], args, dict(os.environ, PATH = f"{bindir}{os.pathsep}{os.environ['PATH']}"))
 
 log = logging.getLogger(__name__)
 anchordir = Path(__file__).parent
 builddir = anchordir / '.build'
 if '__main__' == __name__:
-    _equipifnecessary()
+    _activateifnecessary()
 
 from argparse import ArgumentParser
 from aridity.config import ConfigCtrl
