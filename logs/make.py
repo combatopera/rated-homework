@@ -10,11 +10,7 @@ def _activateifnecessary():
     logging.basicConfig(format = "%(asctime)s %(levelname)s %(message)s", level = logging.DEBUG)
     indicator = '--venv'
     indicatorindex = 1
-    try:
-        activated = indicator == sys.argv[indicatorindex]
-    except IndexError:
-        activated = False
-    if activated:
+    if indicatorindex < len(sys.argv) and indicator == sys.argv[indicatorindex]:
         sys.argv.pop(indicatorindex)
         return
     requirementspath = anchordir / 'requirements.txt'
