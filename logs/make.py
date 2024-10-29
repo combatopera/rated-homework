@@ -33,6 +33,7 @@ if '__main__' == __name__:
 
 from argparse import ArgumentParser
 from aridity.config import ConfigCtrl
+from diapyr.util import invokeall
 from dkrcache.util import iidfile
 from lagoon import docker, pyflakes
 from lagoon.program import NOEOL, partial
@@ -50,7 +51,8 @@ class Main:
         self.docker_compose = docker.compose[partial](cwd = anchordir, env = dict(APACHE_PORT = str(config.apache_port), POSTGRES_PASSWORD = config.postgres.password, POSTGRES_USER = config.postgres.user))
 
     def check(self):
-        pyflakes[exec](*(p for p in anchordir.glob('**/*.py') if not p.is_relative_to(builddir)))
+        pyflakes[print](*(p for p in anchordir.glob('**/*.py') if not p.is_relative_to(builddir)))
+        invokeall([docker.build.__target.test[print, partial]('--build-arg', f"service={service}", anchordir) for service in ['api', 'console']])
 
     def compose(self):
         self.docker_compose[exec](*sys.argv[1:])

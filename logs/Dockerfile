@@ -8,6 +8,13 @@ COPY $service/requirements.in .
 RUN pip install -r requirements.in && pip freeze | tee requirements.txt # TODO: Use pip-tools.
 ENTRYPOINT ["cat", "requirements.txt"]
 
+FROM python AS test
+ARG service
+COPY $service/requirements.txt .
+RUN pip install -r requirements.txt pytest
+COPY $service .
+RUN pytest
+
 FROM python AS api
 COPY api/requirements.txt .
 RUN pip install -r requirements.txt
