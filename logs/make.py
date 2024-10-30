@@ -98,6 +98,10 @@ class Main:
         portpath.write_text(f"{portstr}\n")
         self.docker_compose.exec.console.dbwait[print]()
 
+    def wipe(self):
+        self._update()
+        self.docker_compose.exec.console.dbwipe[print]()
+
 def main():
     if not configpath.exists():
         log.info("Create config: %s", configpath)
