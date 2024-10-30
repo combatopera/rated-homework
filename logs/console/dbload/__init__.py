@@ -42,10 +42,10 @@ def main():
         cur.execute('CREATE UNIQUE INDEX customer_date ON stats (customer_id, date)') # XXX: Create after load?
         days = defaultdict(Day)
         for line in sys.stdin:
-            date, isotime, customer_id, request_path, status_code, duration = line.split()
-            days[customer_id, date].put(time.fromisoformat(isotime), int(status_code), float(duration))
-        for (customer_id, date), day in days.items():
-            cur.execute('INSERT INTO stats VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (customer_id, date, day.successful, day.failed, day.uptime(), day.latency_mean(), *day.latency_percentiles(50, 99)))
+            isodate, isotime, customer_id, request_path, status_code, duration = line.split()
+            days[customer_id, isodate].put(time.fromisoformat(isotime), int(status_code), float(duration))
+        for (customer_id, isodate), day in days.items():
+            cur.execute('INSERT INTO stats VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (customer_id, isodate, day.successful, day.failed, day.uptime(), day.latency_mean(), *day.latency_percentiles(50, 99)))
 
 if '__main__' == __name__:
     main()
