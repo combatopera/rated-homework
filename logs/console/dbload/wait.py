@@ -13,7 +13,7 @@ def main():
     while True:
         try:
             with connect(host = cc.r.postgres.host, password = cc.r.postgres.password, user = cc.r.postgres.user):
-                log.info('Connection success.')
+                log.info('Connect now possible.')
                 break
         except OperationalError as e:
             log.debug("Retry after %s seconds: %s", sleeptime, e)
