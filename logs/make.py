@@ -52,7 +52,7 @@ class Main:
     def __init__(self, config):
         self.docker_compose = docker.compose[partial](cwd = anchordir, env = dict(APACHE_PORT = str(config.apache_port), POSTGRES_PASSWORD = config.postgres.password, POSTGRES_USER = config.postgres.user))
 
-    def test(self):
+    def _test(self):
         pyflakes[print](*(p for p in anchordir.glob('**/*.py') if not p.is_relative_to(builddir)))
         invokeall([docker.build.__target.test[print, partial]('--build-arg', f"service={service}", anchordir) for service in ['api', 'console']])
 
@@ -77,7 +77,7 @@ class Main:
             copyfileobj(f, sys.stdout.buffer) if args.raw else print(json.dumps(json.load(f), indent = 4))
 
     def load(self):
-        self.update()
+        self._update()
         parser = ArgumentParser()
         parser.add_argument('logpath', type = Path)
         with parser.parse_args().logpath.open() as f:
@@ -90,8 +90,8 @@ class Main:
         log.info("Delete: %s", builddir)
         rmtree(builddir)
 
-    def update(self):
-        self.test()
+    def _update(self):
+        self._test()
         self.docker_compose.up.__build._d[print]()
         info, = docker.inspect[json](self.docker_compose.ps._q.api[NOEOL]())
         portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
