@@ -81,6 +81,9 @@ class Main:
         with parser.parse_args().logpath.open() as f:
             self.docker_compose.exec._T.console.dbload[print](stdin = f)
 
+    def scrub(self):
+        pass # TODO: Implement me.
+
     def update(self):
         self.test()
         self.docker_compose.up.__build._d[print]()
