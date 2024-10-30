@@ -19,5 +19,6 @@ class UptimeEstimator:
 
     def uptime(self):
         timeline = sorted(self.events)
+        # Each up event contributes the average of the empty periods immediately before and after it (with wraparound) to uptime:
         ring = [timeline[-1].shift(-1), *timeline, timeline[0].shift(1)]
         return sum(after.time - before.time for before, event, after in zip(ring, islice(ring, 1, None), islice(ring, 2, None)) if event.isup) / 2 / daysize * 100
