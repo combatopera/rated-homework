@@ -50,6 +50,3 @@ def main():
         for (customer_id, isodate), day in days.items():
             cur.execute("INSERT INTO daily VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (customer_id, isodate, day.successful, day.failed, day.uptime(), day.latency_mean(), *day.latency_percentiles(50, 99)))
         cur.execute('CREATE UNIQUE INDEX customer_date ON daily (customer_id, date)')
-
-if '__main__' == __name__:
-    main()

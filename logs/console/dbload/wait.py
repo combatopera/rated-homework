@@ -18,6 +18,3 @@ def main():
         except OperationalError as e:
             log.debug("Retry after %s seconds: %s", sleeptime, e)
         time.sleep(sleeptime)
-
-if '__main__' == __name__:
-    main()
