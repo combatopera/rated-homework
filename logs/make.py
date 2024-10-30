@@ -83,7 +83,8 @@ class Main:
 
     def update(self):
         self.test()
-        self.docker_compose.up.__build._d[print]() # FIXME: Wait for db to be ready.
+        self.docker_compose.up.__build._d[print]()
+        self.docker_compose.exec.console.dbwait[print]()
         info, = docker.inspect[json](self.docker_compose.ps._q.api[NOEOL]())
         portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
         portpath.write_text(f"{portstr}\n")
