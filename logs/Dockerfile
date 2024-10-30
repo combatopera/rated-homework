@@ -13,7 +13,7 @@ ARG service
 COPY $service/requirements.txt .
 RUN pip install -r requirements.txt pytest # TODO: Check consistent with requirements.in file.
 COPY $service .
-RUN pytest
+RUN pytest -v
 
 FROM python AS api
 COPY api/requirements.txt .
