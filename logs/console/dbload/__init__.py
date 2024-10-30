@@ -31,7 +31,7 @@ class Day:
     def latency_percentiles(self, *percentiles):
         return np.percentile(self.durations, percentiles)
 
-def main():
+def main(): # TODO: Add logging.
     cc = ConfigCtrl()
     cc.load('config.arid')
     # XXX: Use autocommit?
