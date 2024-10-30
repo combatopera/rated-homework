@@ -15,7 +15,7 @@ class Application:
         self.flask = flask
 
     def stats(self, customer_id):
-        with connect(host = self.pg_host, password = self.pg_pass, user = self.pg_user) as conn, conn.cursor() as cur:
+        with connect(autocommit = True, host = self.pg_host, password = self.pg_pass, user = self.pg_user) as conn, conn.cursor() as cur:
             cur.execute(f"SELECT date, {', '.join(self.cols)} FROM daily WHERE customer_id = %s AND date >= %s ORDER BY date", (customer_id, request.args['from']))
             return self.flask.response_class(json.dumps({str(date): dict(zip(self.cols, row)) for date, *row in cur.fetchall()}, separators = (',', ':')), mimetype = 'application/json')
 
