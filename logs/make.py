@@ -38,12 +38,13 @@ from diapyr.util import invokeall
 from dkrcache.util import iidfile
 from lagoon import docker, pyflakes
 from lagoon.program import NOEOL, partial
-from shutil import copyfileobj
+from shutil import copyfileobj, rmtree
 from urllib.parse import quote, quote_plus
 from urllib.request import urlopen
 from uuid import uuid4
 import json
 
+configpath = anchordir / 'etc' / 'config.arid'
 portpath = builddir / 'port'
 
 class Main:
@@ -83,7 +84,11 @@ class Main:
             self.docker_compose.exec._T.console.dbload[print](stdin = f)
 
     def scrub(self):
-        pass # TODO: Implement me.
+        self.docker_compose.down[print]()
+        log.info("Delete: %s", configpath)
+        configpath.unlink()
+        log.info("Delete: %s", builddir)
+        rmtree(builddir)
 
     def update(self):
         self.test()
@@ -94,7 +99,6 @@ class Main:
         self.docker_compose.exec.console.dbwait[print]()
 
 def main():
-    configpath = anchordir / 'etc' / 'config.arid'
     if not configpath.exists():
         log.info("Create config: %s", configpath)
         configpath.write_text(f". $./(root.arid)\npostgres password = {uuid4()}\n")
