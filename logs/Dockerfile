@@ -5,13 +5,13 @@ WORKDIR /service-setup
 FROM python AS freeze
 ARG service
 COPY $service/requirements.in .
-RUN pip install -r requirements.in && pip freeze | tee requirements.txt # TODO: Use pip-tools.
+RUN pip install -r requirements.in && pip freeze | tee requirements.txt # TODO: Use pip-tools to minimise change.
 ENTRYPOINT ["cat", "requirements.txt"]
 
 FROM python AS test
 ARG service
 COPY $service/requirements.txt .
-RUN pip install -r requirements.txt pytest # TODO: Check requirements in sync.
+RUN pip install -r requirements.txt pytest # TODO: Check in sync with requirements.in file.
 COPY $service .
 RUN pytest
 
