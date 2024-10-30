@@ -50,7 +50,8 @@ portpath = builddir / 'port'
 class Main:
 
     def __init__(self, config):
-        self.docker_compose = docker.compose[partial](cwd = anchordir, env = dict(APACHE_PORT = str(config.apache_port), POSTGRES_PASSWORD = config.postgres.password, POSTGRES_USER = config.postgres.user))
+        self.apache_port = config.apache_port
+        self.docker_compose = docker.compose[partial](cwd = anchordir, env = dict(APACHE_PORT = str(self.apache_port), POSTGRES_PASSWORD = config.postgres.password, POSTGRES_USER = config.postgres.user))
 
     def _test(self):
         pyflakes[print](*(p for p in anchordir.glob('**/*.py') if not p.is_relative_to(builddir)))
@@ -98,7 +99,7 @@ class Main:
         self._test()
         self.docker_compose.up.__build._d[print]()
         info, = docker.inspect[json](self.docker_compose.ps._q.api[NOEOL]())
-        portstr, = {y['HostPort'] for x in info['NetworkSettings']['Ports'].values() for y in x}
+        portstr, = {d['HostPort'] for d in info['NetworkSettings']['Ports'][f"{self.apache_port}/tcp"]}
         portpath.write_text(f"{portstr}\n")
         self.docker_compose.exec.console.dbwait[print]()
 
