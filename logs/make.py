@@ -98,6 +98,7 @@ class Main:
     def _update(self):
         self._test()
         self.docker_compose.up.__build._d[print]()
+        log.info("Save API port to: %s", portpath)
         info, = docker.inspect[json](self.docker_compose.ps._q.api[NOEOL]())
         portstr, = {d['HostPort'] for d in info['NetworkSettings']['Ports'][f"{self.apache_port}/tcp"]}
         portpath.write_text(f"{portstr}\n")
