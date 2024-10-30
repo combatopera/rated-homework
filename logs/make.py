@@ -23,8 +23,8 @@ def _activateifnecessary():
         check_call([sys.executable, '-m', 'venv', venvdir])
         check_call([bindir / 'pip', 'install', '-r', requirementspath])
         copy2(requirementspath, journalpath)
-    args = bindir / 'python', __file__, indicator, *sys.argv[1:]
-    os.execve(args[0], args, dict(os.environ, PATH = f"{bindir}{os.pathsep}{os.environ['PATH']}"))
+    argv = bindir / 'python', __file__, indicator, *sys.argv[1:]
+    os.execve(argv[0], argv, dict(os.environ, PATH = f"{bindir}{os.pathsep}{os.environ['PATH']}"))
 
 log = logging.getLogger(__name__)
 anchordir = Path(__file__).parent
