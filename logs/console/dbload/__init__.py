@@ -34,7 +34,7 @@ class Day:
     def latency_percentiles(self, *percentiles):
         return np.percentile(self.durations, percentiles)
 
-def main():
+def load():
     initlogging()
     cc = ConfigCtrl()
     cc.load('config.arid')
