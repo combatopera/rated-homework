@@ -44,7 +44,6 @@ def main():
         cur.execute('DROP TABLE IF EXISTS daily')
         log.info('Create table.')
         cur.execute('CREATE TABLE daily (customer_id text NOT NULL, date date NOT NULL, successful integer NOT NULL, failed integer NOT NULL, uptime real NOT NULL, latency_mean real NOT NULL, latency_median real NOT NULL, latency_p99 real NOT NULL)')
-        cur.execute('CREATE UNIQUE INDEX customer_date ON daily (customer_id, date)') # XXX: Create after load?
         log.info('Read data.')
         days = defaultdict(Day)
         for line in sys.stdin:
@@ -53,6 +52,7 @@ def main():
         log.info('Insert data.')
         for (customer_id, isodate), day in days.items():
             cur.execute('INSERT INTO daily VALUES (%s, %s, %s, %s, %s, %s, %s, %s)', (customer_id, isodate, day.successful, day.failed, day.uptime(), day.latency_mean(), *day.latency_percentiles(50, 99)))
+        cur.execute('CREATE UNIQUE INDEX customer_date ON daily (customer_id, date)')
 
 if '__main__' == __name__:
     main()
