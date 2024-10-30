@@ -57,10 +57,11 @@ class Main:
         invokeall([docker.build.__target.test[print, partial]('--build-arg', f"service={service}", anchordir) for service in ['api', 'console']])
 
     def compose(self):
-        self.docker_compose[exec](*sys.argv[1:])
+        self.docker_compose[exec](*sys.argv[2:])
 
     def freeze(self):
         parser = ArgumentParser()
+        parser.add_argument('goal', choices = ['freeze'])
         parser.add_argument('service')
         service = parser.parse_args().service
         with iidfile() as iid:
@@ -69,6 +70,7 @@ class Main:
 
     def get(self):
         parser = ArgumentParser()
+        parser.add_argument('goal', choices = ['get'])
         parser.add_argument('--raw', action = 'store_true')
         parser.add_argument('id')
         parser.add_argument('from')
@@ -77,10 +79,12 @@ class Main:
             copyfileobj(f, sys.stdout.buffer) if args.raw else print(json.dumps(json.load(f), indent = 4))
 
     def load(self):
-        self._update()
         parser = ArgumentParser()
+        parser.add_argument('goal', choices = ['load'])
         parser.add_argument('logpath', type = Path)
-        with parser.parse_args().logpath.open() as f:
+        args = parser.parse_args()
+        self._update()
+        with args.logpath.open() as f:
             self.docker_compose.exec._T.console.dbload[print](stdin = f)
 
     def scrub(self):
@@ -108,7 +112,7 @@ def main():
         configpath.write_text(f". $./(root.arid)\npostgres password = {uuid4()}\n")
     cc = ConfigCtrl()
     cc.load(configpath)
-    getattr(Main(cc.r), sys.argv.pop(1))() # TODO LATER: Use argparse.
+    getattr(Main(cc.r), sys.argv[1])()
 
 if '__main__' == __name__:
     main()
