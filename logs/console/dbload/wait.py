@@ -1,12 +1,13 @@
 from aridity.config import ConfigCtrl
 from psycopg import connect, OperationalError
+from venvpool import initlogging
 import logging, time
 
 log = logging.getLogger(__name__)
 sleeptime = .5
 
 def main():
-    logging.basicConfig(format = "%(asctime)s %(levelname)s %(message)s", level = logging.DEBUG)
+    initlogging()
     cc = ConfigCtrl()
     cc.load('config.arid')
     while True:

@@ -2,3 +2,4 @@ aridity
 diapyr
 lagoon
 pyflakes
+venvpool
