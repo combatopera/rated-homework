@@ -11,7 +11,7 @@ ENTRYPOINT ["cat", "requirements.txt"]
 FROM python AS test
 ARG service
 COPY $service/requirements.txt .
-RUN pip install -r requirements.txt pytest
+RUN pip install -r requirements.txt pytest # TODO: Check requirements in sync.
 COPY $service .
 RUN pytest
 
