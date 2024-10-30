@@ -38,7 +38,6 @@ def main():
     initlogging()
     cc = ConfigCtrl()
     cc.load('config.arid')
-    # XXX: Use autocommit?
     with connect(host = cc.r.postgres.host, password = cc.r.postgres.password, user = cc.r.postgres.user) as conn, conn.cursor() as cur:
         log.info('Create table.')
         cur.execute('CREATE TABLE daily (customer_id text NOT NULL, date date NOT NULL, successful integer NOT NULL, failed integer NOT NULL, uptime real NOT NULL, latency_mean real NOT NULL, latency_median real NOT NULL, latency_p99 real NOT NULL)')
