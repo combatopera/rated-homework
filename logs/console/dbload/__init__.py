@@ -10,23 +10,24 @@ log = logging.getLogger(__name__)
 
 class Day:
 
-    classification = {2: 'successful', 4: 'failed', 5: 'failed'}
+    outage_class = 5
+    class_to_tally = {2: 'successful', 4: 'failed', outage_class: 'failed'}
     successful = 0
     failed = 0
 
     def __init__(self):
-        self.estimator = UptimeEstimator()
+        self.uptime_estimator = UptimeEstimator()
         self.durations = []
 
     def put(self, time, status_code, duration):
         status_class = status_code // 100
-        k = self.classification[status_class]
-        setattr(self, k, getattr(self, k) + 1)
-        self.estimator.add(time, 5 != status_class)
+        tally = self.class_to_tally[status_class]
+        setattr(self, tally, getattr(self, tally) + 1)
+        self.uptime_estimator.add(time, self.outage_class != status_class)
         self.durations.append(duration) # XXX: Filter status?
 
     def uptime(self):
-        return self.estimator.uptime()
+        return self.uptime_estimator.uptime()
 
     def latency_mean(self):
         return np.mean(self.durations)
