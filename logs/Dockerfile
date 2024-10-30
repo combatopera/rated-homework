@@ -30,5 +30,5 @@ RUN pip install -r requirements.txt
 COPY console .
 RUN pip install . && rm -rv $PWD | tail -1
 COPY etc .
-ENTRYPOINT ["python", "-c", "import time\nwhile True: time.sleep(1)"]
+ENTRYPOINT ["sleep-until-sigint"]
 STOPSIGNAL SIGINT
