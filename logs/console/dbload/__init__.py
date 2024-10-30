@@ -15,15 +15,15 @@ class Day:
     failed = 0
 
     def __init__(self):
-        self.durations = []
         self.estimator = UptimeEstimator()
+        self.durations = []
 
     def put(self, time, status_code, duration):
         status_class = status_code // 100
         k = self.classification[status_class]
         setattr(self, k, getattr(self, k) + 1)
         self.estimator.add(time, 5 != status_class)
-        self.durations.append(duration) # XXX: Exclude any status?
+        self.durations.append(duration) # XXX: Filter status?
 
     def uptime(self):
         return self.estimator.uptime()
