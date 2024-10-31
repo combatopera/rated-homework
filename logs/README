@@ -1,6 +1,6 @@
 ./make.py load api_requests.log
 
-Load the given log file into the database. This also creates a venv for make.py itself, creates a config, runs the tests and starts all containers including the API.
+Load the given log file into the database. This also creates a venv for make.py itself, creates a config, runs the tests and starts all containers including the API. See .build/port for the local port of the API.
 
 ./make.py get cust_1 2024-09-28
 ./make.py get cust_1 2024-09-28 --raw
