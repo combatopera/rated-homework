@@ -5,7 +5,7 @@ Load the given log file into the database. This also creates a venv for make.py 
 ./make.py get cust_1 2024-09-28
 ./make.py get cust_1 2024-09-28 --raw
 
-Query the API for the given customer and date. Use --raw to turn off pretty print.
+Convenience to query the API for the given customer and date. Use --raw to turn off pretty print.
 
 ./make.py compose ...
 
