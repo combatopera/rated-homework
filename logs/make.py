@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
 from pathlib import Path
-from venvpool import initlogging
 import logging, sys
 
 def _activateifnecessary():
     from shutil import copy2
     from subprocess import check_call
     import os
-    initlogging()
+    logging.basicConfig(format = "%(levelname)s %(message)s", level = logging.DEBUG)
     indicator = '--venv'
     indicatorindex = 1
     if indicatorindex < len(sys.argv) and indicator == sys.argv[indicatorindex]:
