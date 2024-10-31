@@ -57,5 +57,6 @@ def wipe():
     cc = ConfigCtrl()
     cc.load('config.arid')
     with connect(host = cc.r.postgres.host, password = cc.r.postgres.password, user = cc.r.postgres.user) as conn, conn.cursor() as cur:
+        log.info('Drop resources.')
         cur.execute('DROP INDEX IF EXISTS customer_date')
         cur.execute('DROP TABLE IF EXISTS daily')
