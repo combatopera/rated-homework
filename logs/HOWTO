@@ -1,0 +1,34 @@
+./make.py load api_requests.log
+
+Load the given log file into the database. This also creates a venv for make.py itself, creates a config, runs the tests and starts all containers including the API.
+
+./make.py get cust_1 2024-09-28
+./make.py get cust_1 2024-09-28 --raw
+
+Query the API for the given customer and date. Use --raw to turn off pretty print.
+
+./make.py compose ...
+
+Execute arbitrary docker compose command with compose environment filled in.
+
+./make.py wipe
+
+Clear the database so that it can be reloaded.
+
+./make.py scrub
+
+Delete containers and generated files to start from scratch.
+
+./make.py _test
+
+Run static checks and unit tests.
+
+./make.py _update
+
+Synchronise containers with any changes. This also runs the tests.
+
+./make.py freeze api
+./make.py freeze console
+
+Freeze requirements of the given service.
+
