@@ -33,3 +33,12 @@ class TestUptimeEstimator(TestCase):
         self.assertEqual(50, ue.uptime())
         ue.add(time(21, 0, 0), True)
         self.assertEqual(81.25, ue.uptime())
+
+    def test_whynotsimpleratio(self):
+        ue = UptimeEstimator()
+        clumpsize = 60
+        for s in range(clumpsize):
+            ue.add(time(6, 0, s), True)
+        ue.add(time(12, 0, 0), False)
+        self.assertEqual(98, round(clumpsize / (clumpsize + 1) * 100)) # Skewed by clump of requests.
+        self.assertEqual(50, round(ue.uptime())) # More believable service uptime based on evidence.
