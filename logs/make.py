@@ -87,7 +87,7 @@ class Main:
         with args.logpath.open() as f:
             self.docker_compose.exec._T.console.dbload[print](stdin = f)
 
-    def scrub(self):
+    def scrub(self): # FIXME: Delete postgres docker volume.
         self.docker_compose.down[print]()
         log.info("Delete: %s", configpath)
         configpath.unlink()
